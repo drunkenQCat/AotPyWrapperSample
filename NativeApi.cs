@@ -18,7 +18,8 @@ public static class NativeApi
     {
         try
         {
-            string prefix = Marshal.PtrToStringUTF8(prefixPtr);
+            string? prefixMaybe = Marshal.PtrToStringUTF8(prefixPtr);
+            string prefix = prefixMaybe ?? string.Empty;
             var processor = new TextProcessor(prefix);
 
             // 关键：创建一个 GCHandle 来 "固定" 托管对象，
@@ -78,10 +79,14 @@ public static class NativeApi
         {
             // 1. 从句柄获取实例
             GCHandle handle = GCHandle.FromIntPtr(processorHandle);
-            var processor = (TextProcessor)handle.Target;
+            if (handle.Target is not TextProcessor processor)
+            {
+                return IntPtr.Zero;
+            }
 
             // 2. 转换输入
-            string text = Marshal.PtrToStringUTF8(textPtr);
+            string? textMaybe = Marshal.PtrToStringUTF8(textPtr);
+            string text = textMaybe ?? string.Empty;
 
             // 3. 调用业务逻辑
             string result = processor.Process(text);
