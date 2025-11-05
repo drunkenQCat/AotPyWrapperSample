@@ -1,0 +1,3 @@
+bin/Release/net9.0/linux-x64
+obj
+py-wrapper/__pycache__
